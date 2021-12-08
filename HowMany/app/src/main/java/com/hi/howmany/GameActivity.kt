@@ -1,5 +1,6 @@
 package com.hi.howmany
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -215,6 +216,27 @@ class GameActivity : AppCompatActivity() {
         return intent_time_over
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Log.d("debug","onActivityResult activated and request code  is : "+REQUEST_CODE +" but request code code is : "+requestCode)
+        Log.d("debug","onActivityResult activated and result code  is : "+ Activity.RESULT_OK +" but request code code is : "+resultCode)
+        Log.d("debug", "returned value is : " + data?.getIntExtra("return", -1))
+
+        if (requestCode == REQUEST_CODE){
+            Log.d("debug", "step one through")
+            if(resultCode == Activity.RESULT_OK || resultCode== Activity.RESULT_CANCELED) {
+                Log.d("debug", "step two through")
+                if (data?.getIntExtra("return", -1) == 0) {
+                    Log.d("debug", "returned value is : " + data?.getIntExtra("return", -1))
+                } else {
+                    Log.d("debug", "returned value is : " + data?.getIntExtra("return", -1))
+                    finish()
+                }
+            }
+        }
+    }
+
     private fun makeTimeSchedule() : TimerTask {
         val timerTask: TimerTask = object : TimerTask() {
 
@@ -231,5 +253,20 @@ class GameActivity : AppCompatActivity() {
             }
         }
         return timerTask
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        mTimerTask.cancel()
+
+        Log.d("debug", "game activity on paused")
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        mHaveBeenOut= -2
+        Log.d("debug","game activity on Stop")
     }
 }
