@@ -1,6 +1,7 @@
 package com.hi.howmany
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -36,6 +37,12 @@ class GameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_game)
 
         mStage=0
+
+        val sharedPref = this?.getPreferences(Context.MODE_PRIVATE)
+        val currentHighScore = sharedPref.getInt("highest_score",0)
+
+        int_score_high.setText(currentHighScore.toString())
+        mHighScore = currentHighScore
     }
 
     override fun onResume() {
@@ -257,7 +264,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        
+
         val intent_wait = Intent(this, WaitingActivity::class.java)
         startActivity(intent_wait)
     }
@@ -275,5 +282,21 @@ class GameActivity : AppCompatActivity() {
 
         mHaveBeenOut= -2
         Log.d("debug","game activity on Stop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        val sharedPref = this?.getPreferences(Context.MODE_PRIVATE)
+        val currentHighScore = sharedPref.getInt("highest_score",0)
+
+        Log.d("debug","current high score is : "+currentHighScore)
+
+        if(mStage>currentHighScore){
+            Log.d("debug","New high score! : "+mStage+" stage!")
+            sharedPref.edit().putInt("highest_score",mStage).commit()
+        }
+
+        Log.d("debug","game activity on destroy")
     }
 }
