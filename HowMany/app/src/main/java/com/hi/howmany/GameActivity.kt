@@ -255,6 +255,13 @@ class GameActivity : AppCompatActivity() {
         return timerTask
     }
 
+    override fun onStart() {
+        super.onStart()
+        
+        val intent_wait = Intent(this, WaitingActivity::class.java)
+        startActivity(intent_wait)
+    }
+
     override fun onPause() {
         super.onPause()
 

@@ -24,6 +24,10 @@
         <activity
             android:theme="@style/Theme.Transparent"
             android:name=".ResultActivity"/>
+
+        <activity
+            android:theme="@style/Theme.Transparent"
+            android:name=".WaitingActivity"/>
     </application>
 
 </manifest>
