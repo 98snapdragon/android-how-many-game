@@ -20,6 +20,10 @@
         </activity>
 
         <activity android:name=".GameActivity"/>
+
+        <activity
+            android:theme="@style/Theme.Transparent"
+            android:name=".ResultActivity"/>
     </application>
 
 </manifest>
