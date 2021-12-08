@@ -9,15 +9,25 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.gridlayout.widget.GridLayout
 import kotlinx.android.synthetic.main.activity_game.*
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class GameActivity : AppCompatActivity() {
+
     private var mAnswer:Int = 0
     private var mCounter:Int = 0
     private var mRightChoice:Int = 0
+    private val REQUEST_CODE = 3000
     private var mStage = 0
+    private var mState = 1
+    private var mHaveBeenOut = 0
+    private var mHighScore = 0
 
     private var mQuestionList:MutableList<MutableList<Int>> = ArrayList()
+
+    val mTimer = Timer()
+    var mTimerTask = makeTimeSchedule()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,11 +35,75 @@ class GameActivity : AppCompatActivity() {
         setContentView(R.layout.activity_game)
 
         mStage=0
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Log.d("debug","onResume activated")
 
         val intent = Intent(this, ResultActivity::class.java)
         mQuestionList.clear()
         mAnswer=0
         mCounter=0
+
+        if(mState==0 && mHaveBeenOut==0){ mStage+=1 }
+        mState=0
+        if(mHaveBeenOut!=0){
+            mHaveBeenOut+=1
+        }
+
+        if(mStage>mHighScore){
+            int_score_high.setText(mStage.toString())
+            int_score_current.setTextColor(Color.rgb(192,0,0))
+        }
+
+
+        val questionBoard : GridLayout? = grid_problem_board
+        val level = mStage/5+3
+
+        int_score_current.setText(mStage.toString())
+
+        grid_problem_board.removeAllViews()
+        mMakeQuestionBoard(level,questionBoard)
+        timePushing()
+
+        btn_selection_1.setOnClickListener {
+            if (mRightChoice==0){
+                intent.putExtra("result",0)
+                startActivityForResult(intent,REQUEST_CODE)
+            } else if(mRightChoice==1) {
+                intent.putExtra("result",1)
+                startActivityForResult(intent,REQUEST_CODE)
+            } else { //mRightChoice == 2
+                intent.putExtra("result",1)
+                startActivityForResult(intent,REQUEST_CODE)
+            }
+        }
+        btn_selection_2.setOnClickListener {
+            if (mRightChoice==0){
+                intent.putExtra("result",1)
+                startActivityForResult(intent,REQUEST_CODE)
+            } else if(mRightChoice==1) {
+                intent.putExtra("result",0)
+                startActivityForResult(intent,REQUEST_CODE)
+            } else { //mRightChoice == 2
+                intent.putExtra("result",1)
+                startActivityForResult(intent,REQUEST_CODE)
+            }
+        }
+        btn_selection_3.setOnClickListener {
+            if (mRightChoice==0){
+                intent.putExtra("result",1)
+                startActivityForResult(intent,REQUEST_CODE)
+            } else if(mRightChoice==1) {
+                intent.putExtra("result",1)
+                startActivityForResult(intent,REQUEST_CODE)
+            } else { //mRightChoice == 2
+                intent.putExtra("result",0)
+                startActivityForResult(intent,REQUEST_CODE)
+            }
+        }
     }
 
     private fun mMakeQuestionBoard(level:Int, questionBoard: GridLayout?){
@@ -128,5 +202,34 @@ class GameActivity : AppCompatActivity() {
 
         Log.d("debug","The answer is :" + mAnswer)
         Log.d("debug","QuestionList"+mQuestionList.toString())
+    }
+
+    private fun timePushing() {
+        mTimerTask=makeTimeSchedule()
+        Log.d("debug","Now time is :"+mCounter)
+        mTimer.schedule(mTimerTask,100,100)
+    }
+
+    private fun giveIntent() : Intent {
+        val intent_time_over = Intent(this, ResultActivity::class.java)
+        return intent_time_over
+    }
+
+    private fun makeTimeSchedule() : TimerTask {
+        val timerTask: TimerTask = object : TimerTask() {
+
+            override fun run() {
+                mCounter++
+                time_progress_bar.setProgress(mCounter*2)
+
+                if (mCounter == 50) {
+                    mTimer.cancel()
+                    val intent_time_over = giveIntent()
+                    intent_time_over.putExtra("result",2)
+                    startActivityForResult(intent_time_over,REQUEST_CODE)
+                }
+            }
+        }
+        return timerTask
     }
 }
